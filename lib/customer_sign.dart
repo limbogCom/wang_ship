@@ -75,7 +75,7 @@ class _CustomerSignPageState extends State<CustomerSignPage> {
         msg: "ยืนยันรับสินค้าแล้ว",
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.CENTER,
-        timeInSecForIos: 3
+        timeInSecForIosWeb: 3
     );
   }
 
@@ -260,7 +260,8 @@ class _CustomerSignPageState extends State<CustomerSignPage> {
   requestPermission() async {
     //bool result = await SimplePermissions.requestPermission(_permission);
     //Map<PermissionGroup, PermissionStatus> result = await PermissionHandler.requestPermissions(_permission);
-    Map<PermissionGroup, PermissionStatus> result = await PermissionHandler().requestPermissions([PermissionGroup.storage]);
+    //Map<PermissionGroup, PermissionStatus> result = await PermissionHandler().requestPermissions([PermissionGroup.storage]);
+    Map<Permission, PermissionStatus> result = await [Permission.storage].request();
 
     return result;
   }
@@ -268,14 +269,17 @@ class _CustomerSignPageState extends State<CustomerSignPage> {
   checkPermission() async {
 
     //PermissionStatus result = await PermissionHandler().checkPermissionStatus(PermissionGroup.storage);
-    bool result = await PermissionHandler().shouldShowRequestPermissionRationale(PermissionGroup.storage);
+    //bool result = await PermissionHandler().shouldShowRequestPermissionRationale(PermissionGroup.storage);
+    bool result = await Permission.storage.status.isGranted;
+
     //bool result = await SimplePermissions.checkPermission(_permission);
     return result;
   }
 
   getPermissionStatus() async {
 
-    final result = await PermissionHandler().checkServiceStatus(PermissionGroup.storage);
+    //final result = await PermissionHandler().checkServiceStatus(PermissionGroup.storage);
+    final result = await Permission.storage.status.isGranted;
     //final result = await SimplePermissions.getPermissionStatus(_permission);
     print("permission status is " + result.toString());
   }
