@@ -7,6 +7,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:barcode_scan/barcode_scan.dart';
 
 import 'package:wang_ship/bill_model.dart';
+import 'package:wang_ship/lot_model.dart';
 import 'package:wang_ship/customer_sign.dart';
 
 import 'package:wang_ship/check_order_detail.dart';
@@ -22,13 +23,16 @@ class CheckOrderPage extends StatefulWidget {
 class _CheckOrderPageState extends State<CheckOrderPage> {
 
   TextEditingController barcodeProduct = TextEditingController();
+  TextEditingController barcodeProductLot = TextEditingController();
 
   List<Bill> _search = [];
+  List<Lot> _searchLot = [];
 
   String barcode;
 
   var loading = false;
   List<Bill> _billShip = [];
+  List<Lot> _proLot = [];
 
   String username;
 
@@ -67,6 +71,41 @@ class _CheckOrderPageState extends State<CheckOrderPage> {
 
   }
 
+  searchLot(searchVal) async{
+
+    //SharedPreferences prefs = await SharedPreferences.getInstance();
+    //username = prefs.getString("empCodeShipping");
+
+    setState(() {
+      loading = true;
+    });
+    _proLot.clear();
+
+    final res = await http.get('https://wangpharma.com/API/shippingProduct.php?SearchVal=$searchVal&act=SearchLot');
+
+    print('https://wangpharma.com/API/shippingProduct.php?SearchVal=$searchVal&act=SearchLot');
+
+    if(res.statusCode == 200){
+
+      setState(() {
+
+        var jsonData = json.decode(res.body);
+
+        print(jsonData);
+
+        jsonData.forEach((proLots) =>_proLot.add(Lot.fromJson(proLots)));
+
+        print(_proLot);
+        return _proLot;
+
+      });
+
+    }else{
+      throw Exception('Failed load Json');
+    }
+
+  }
+
   scanBarcode() async {
     try {
       String barcode = await BarcodeScanner.scan();
@@ -74,6 +113,28 @@ class _CheckOrderPageState extends State<CheckOrderPage> {
         this.barcode = barcode;
         print(this.barcode);
         searchBill(this.barcode);
+      });
+    } on PlatformException catch (e) {
+      if (e.code == BarcodeScanner.CameraAccessDenied) {
+        _showAlertBarcode();
+        print('Camera permission was denied');
+      } else {
+        print('Unknow Error $e');
+      }
+    } on FormatException {
+      print('User returned using the "back"-button before scanning anything.');
+    } catch (e) {
+      print('Unknown error.');
+    }
+  }
+
+  scanBarcodeLot() async {
+    try {
+      String barcode = await BarcodeScanner.scan();
+      setState((){
+        this.barcode = barcode;
+        print(this.barcode);
+        searchLot(this.barcode);
       });
     } on PlatformException catch (e) {
       if (e.code == BarcodeScanner.CameraAccessDenied) {
@@ -107,7 +168,7 @@ class _CheckOrderPageState extends State<CheckOrderPage> {
         msg: "เพิ่มรายการแล้ว",
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.CENTER,
-        timeInSecForIos: 3
+        timeInSecForIosWeb: 3
     );
   }
 
@@ -162,6 +223,53 @@ class _CheckOrderPageState extends State<CheckOrderPage> {
     }
   }
 
+  _getProLotInfo(){
+
+    if(!loading){
+      return Text('....');
+    }else{
+      return Container(
+        child: ListView.builder(
+          shrinkWrap:true,
+          itemCount: _proLot.length,
+          itemBuilder: (context, i){
+            final a = _proLot[i];
+            return ListTile(
+              contentPadding: EdgeInsets.fromLTRB(10, 1, 10, 1),
+              onTap: (){
+                //getOrderBillDetail(a);
+              },
+              leading: Image.network('https://www.wangpharma.com/cms/product/${a.lotProPic}', fit: BoxFit.cover, width: 70, height: 70),
+              title: Text('[${a.lotProBarcode}]', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text('Code : ${a.lotProCode}',),
+                  Text('Name : ${a.lotProName}',),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Lot : ${a.lotProLot}', style: TextStyle(color: Colors.red),),
+                      Text('รับเข้า : ${a.lotProDate} ', style: TextStyle(color: Colors.black),),
+                    ],
+                  ),
+                ],
+              ),
+              /*trailing: IconButton(
+                  icon: Icon(Icons.local_shipping, size: 40, color: Colors.lightBlue),
+                  onPressed: (){
+                    getOrderBillDetail(a);
+                    //addToOrderFast(productAll[index]);
+                  }
+              ),*/
+            );
+          },
+        ),
+      );
+    }
+  }
+
+
   /*_signCustomer(val){
     Navigator.push(
         context,
@@ -190,6 +298,22 @@ class _CheckOrderPageState extends State<CheckOrderPage> {
 
     _billShip.forEach((f){
       if(f.shipBillCusCode.contains(text)) _search.add(f);
+    });
+
+    setState(() {});
+  }
+
+  onSearchLot(String text) async{
+    _searchLot.clear();
+    if(text.isEmpty){
+      setState(() {});
+      return;
+    }
+
+    searchLot(text);
+
+    _proLot.forEach((f){
+      if(f.lotProBarcode.contains(text)) _searchLot.add(f);
     });
 
     setState(() {});
@@ -277,6 +401,70 @@ class _CheckOrderPageState extends State<CheckOrderPage> {
               ),
             ),*/
               _getBillOrderShipInfo(),
+              SizedBox(
+                height: 20,
+              ),
+              Container(
+                width: MediaQuery.of(context).size.width,
+                color: Colors.black,
+                child: Text('ตรวจ Lot สินค้า', style: TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center,),
+              ),
+              Padding (
+                padding: const EdgeInsets.all(20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Container(
+                      //padding: EdgeInsets.fromLTRB(10, 10, 0, 0),
+                      child: IconButton(
+                          padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+                          icon: Icon(Icons.qr_code_scanner, size: 50, color: Colors.black,),
+                          onPressed: (){
+                            scanBarcodeLot();
+                            //Navigator.push(context, MaterialPageRoute(builder: (context) => OrderPage()));
+                          }
+                      ),
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                        child: TextField (
+                          controller: barcodeProductLot,
+                          onChanged: onSearchLot,
+                          style: TextStyle (
+                            fontSize: 18,
+                            color: Colors.black,
+                          ),
+                          decoration: InputDecoration (
+                              labelText: 'Barcode / ชื่อสินค้า',
+                              labelStyle: TextStyle (
+                                fontSize: (15),
+                              )
+                          ),
+                          keyboardType: TextInputType.text,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                /*child: SizedBox (
+                  width: double.infinity,
+                  height: 56,
+                  child: RaisedButton (
+                    color: Colors.green,
+                    onPressed: scanBarcode,
+                    child: Text (
+                      'Scan',
+                      style: TextStyle (
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 30,
+                      ),
+                    ),
+                  ),
+                ),*/
+              ),
+              _getProLotInfo(),
             ],
           ),
         )
