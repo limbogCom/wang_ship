@@ -234,7 +234,7 @@ class _CheckOrderPageState extends State<CheckOrderPage> {
           itemCount: _proLot.length,
           itemBuilder: (context, i){
             final a = _proLot[i];
-            return ListTile(
+            return i == 0 ? ListTile(
               contentPadding: EdgeInsets.fromLTRB(10, 1, 10, 1),
               onTap: (){
                 //getOrderBillDetail(a);
@@ -251,6 +251,29 @@ class _CheckOrderPageState extends State<CheckOrderPage> {
                     children: [
                       Text('Lot : ${a.lotProLot}', style: TextStyle(color: Colors.red),),
                       Text('รับเข้า : ${a.lotProDate} ', style: TextStyle(color: Colors.black),),
+                    ],
+                  ),
+                ],
+              ),
+              /*trailing: IconButton(
+                  icon: Icon(Icons.local_shipping, size: 40, color: Colors.lightBlue),
+                  onPressed: (){
+                    getOrderBillDetail(a);
+                    //addToOrderFast(productAll[index]);
+                  }
+              ),*/
+            )
+            : ListTile(
+              contentPadding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('----------------->'),
+                      Text('Lot : ${a.lotProLot}', style: TextStyle(color: Colors.red, fontSize: 14),),
+                      Text('รับเข้า : ${a.lotProDate} ', style: TextStyle(color: Colors.black, fontSize: 14),),
                     ],
                   ),
                 ],
@@ -436,7 +459,7 @@ class _CheckOrderPageState extends State<CheckOrderPage> {
                             color: Colors.black,
                           ),
                           decoration: InputDecoration (
-                              labelText: 'Barcode / ชื่อสินค้า',
+                              labelText: 'Barcode / ชื่อสินค้า / รหัส Lot',
                               labelStyle: TextStyle (
                                 fontSize: (15),
                               )
