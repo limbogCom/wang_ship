@@ -230,6 +230,7 @@ class _CheckOrderPageState extends State<CheckOrderPage> {
     }else{
       return Container(
         child: ListView.builder(
+          physics: ClampingScrollPhysics(),
           shrinkWrap:true,
           itemCount: _proLot.length,
           itemBuilder: (context, i){
@@ -249,7 +250,7 @@ class _CheckOrderPageState extends State<CheckOrderPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Lot : ${a.lotProLot}', style: TextStyle(color: Colors.red),),
+                      Text('Lot :  ${a.lotProLot}', style: TextStyle(color: Colors.red),),
                       Text('รับเข้า : ${a.lotProDate} ', style: TextStyle(color: Colors.black),),
                     ],
                   ),
@@ -271,8 +272,10 @@ class _CheckOrderPageState extends State<CheckOrderPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('----------------->'),
-                      Text('Lot : ${a.lotProLot}', style: TextStyle(color: Colors.red, fontSize: 14),),
+                      SizedBox(
+                        width: 60,
+                      ),
+                      Text('Lot :  ${a.lotProLot}', style: TextStyle(color: Colors.red, fontSize: 14),),
                       Text('รับเข้า : ${a.lotProDate} ', style: TextStyle(color: Colors.black, fontSize: 14),),
                     ],
                   ),
@@ -345,152 +348,154 @@ class _CheckOrderPageState extends State<CheckOrderPage> {
   @override
   Widget build(BuildContext context) {
 
-    return SingleChildScrollView(
-        child: Container(
-          child: Column(
-            children: <Widget>[
-              Padding (
-                padding: const EdgeInsets.all(20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Container(
-                      //padding: EdgeInsets.fromLTRB(10, 10, 0, 0),
-                      child: IconButton(
-                          padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-                          icon: Icon(Icons.settings_overscan, size: 50, color: Colors.red,),
-                          onPressed: (){
-                            scanBarcode();
-                            //Navigator.push(context, MaterialPageRoute(builder: (context) => OrderPage()));
-                          }
+    return CustomScrollView(
+            slivers: <Widget>[
+              SliverList(
+                delegate: SliverChildListDelegate([
+                    Padding (
+                      padding: const EdgeInsets.all(20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Container(
+                            //padding: EdgeInsets.fromLTRB(10, 10, 0, 0),
+                            child: IconButton(
+                                padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+                                icon: Icon(Icons.settings_overscan, size: 50, color: Colors.red,),
+                                onPressed: (){
+                                  scanBarcode();
+                                  //Navigator.push(context, MaterialPageRoute(builder: (context) => OrderPage()));
+                                }
+                            ),
+                          ),
+                          Expanded(
+                            child: Padding(
+                              padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                              child: TextField (
+                                controller: barcodeProduct,
+                                onChanged: onSearch,
+                                style: TextStyle (
+                                  fontSize: 18,
+                                  color: Colors.black,
+                                ),
+                                decoration: InputDecoration (
+                                    labelText: 'Code ลูกค้า',
+                                    labelStyle: TextStyle (
+                                      fontSize: (15),
+                                    )
+                                ),
+                                keyboardType: TextInputType.number,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
+                      /*child: SizedBox (
+                        width: double.infinity,
+                        height: 56,
+                        child: RaisedButton (
+                          color: Colors.green,
+                          onPressed: scanBarcode,
+                          child: Text (
+                            'Scan',
+                            style: TextStyle (
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 30,
+                            ),
+                          ),
+                        ),
+                      ),*/
                     ),
-                    Expanded(
-                      child: Padding(
-                        padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                        child: TextField (
-                          controller: barcodeProduct,
-                          onChanged: onSearch,
+                    /*Padding (
+                    padding: const EdgeInsets.all(20),
+                    child: SizedBox (
+                      width: double.infinity,
+                      height: 56,
+                      child: RaisedButton (
+                        color: Colors.blue,
+                        onPressed: _signCustomer,
+                        child: Text (
+                          'Sign',
                           style: TextStyle (
-                            fontSize: 18,
-                            color: Colors.black,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 30,
                           ),
-                          decoration: InputDecoration (
-                              labelText: 'Code ลูกค้า',
-                              labelStyle: TextStyle (
-                                fontSize: (15),
-                              )
-                          ),
-                          keyboardType: TextInputType.number,
                         ),
                       ),
                     ),
-                  ],
-                ),
-                /*child: SizedBox (
-                  width: double.infinity,
-                  height: 56,
-                  child: RaisedButton (
-                    color: Colors.green,
-                    onPressed: scanBarcode,
-                    child: Text (
-                      'Scan',
-                      style: TextStyle (
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 30,
-                      ),
+                  ),*/
+                    _getBillOrderShipInfo(),
+                    SizedBox(
+                      height: 20,
                     ),
-                  ),
-                ),*/
-              ),
-              /*Padding (
-              padding: const EdgeInsets.all(20),
-              child: SizedBox (
-                width: double.infinity,
-                height: 56,
-                child: RaisedButton (
-                  color: Colors.blue,
-                  onPressed: _signCustomer,
-                  child: Text (
-                    'Sign',
-                    style: TextStyle (
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 30,
-                    ),
-                  ),
-                ),
-              ),
-            ),*/
-              _getBillOrderShipInfo(),
-              SizedBox(
-                height: 20,
-              ),
-              Container(
-                width: MediaQuery.of(context).size.width,
-                color: Colors.black,
-                child: Text('ตรวจ Lot สินค้า', style: TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center,),
-              ),
-              Padding (
-                padding: const EdgeInsets.all(20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
                     Container(
-                      //padding: EdgeInsets.fromLTRB(10, 10, 0, 0),
-                      child: IconButton(
-                          padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-                          icon: Icon(Icons.qr_code_scanner, size: 50, color: Colors.black,),
-                          onPressed: (){
-                            scanBarcodeLot();
-                            //Navigator.push(context, MaterialPageRoute(builder: (context) => OrderPage()));
-                          }
-                      ),
+                      width: MediaQuery.of(context).size.width,
+                      color: Colors.black,
+                      child: Text('ตรวจ Lot สินค้า', style: TextStyle(fontSize: 20, color: Colors.white), textAlign: TextAlign.center,),
                     ),
-                    Expanded(
-                      child: Padding(
-                        padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                        child: TextField (
-                          controller: barcodeProductLot,
-                          onChanged: onSearchLot,
-                          style: TextStyle (
-                            fontSize: 18,
-                            color: Colors.black,
+                    Padding (
+                      padding: const EdgeInsets.all(20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Container(
+                            //padding: EdgeInsets.fromLTRB(10, 10, 0, 0),
+                            child: IconButton(
+                                padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+                                icon: Icon(Icons.qr_code_scanner, size: 50, color: Colors.black,),
+                                onPressed: (){
+                                  scanBarcodeLot();
+                                  //Navigator.push(context, MaterialPageRoute(builder: (context) => OrderPage()));
+                                }
+                            ),
                           ),
-                          decoration: InputDecoration (
-                              labelText: 'Barcode / ชื่อสินค้า / รหัส Lot',
-                              labelStyle: TextStyle (
-                                fontSize: (15),
-                              )
+                          Expanded(
+                            child: Padding(
+                              padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                              child: TextField (
+                                controller: barcodeProductLot,
+                                onChanged: onSearchLot,
+                                style: TextStyle (
+                                  fontSize: 18,
+                                  color: Colors.black,
+                                ),
+                                decoration: InputDecoration (
+                                    labelText: 'Barcode / ชื่อสินค้า / รหัส Lot',
+                                    labelStyle: TextStyle (
+                                      fontSize: (15),
+                                    )
+                                ),
+                                keyboardType: TextInputType.text,
+                              ),
+                            ),
                           ),
-                          keyboardType: TextInputType.text,
+                        ],
+                      ),
+                      /*child: SizedBox (
+                        width: double.infinity,
+                        height: 56,
+                        child: RaisedButton (
+                          color: Colors.green,
+                          onPressed: scanBarcode,
+                          child: Text (
+                            'Scan',
+                            style: TextStyle (
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 30,
+                            ),
+                          ),
                         ),
-                      ),
+                      ),*/
                     ),
-                  ],
-                ),
-                /*child: SizedBox (
-                  width: double.infinity,
-                  height: 56,
-                  child: RaisedButton (
-                    color: Colors.green,
-                    onPressed: scanBarcode,
-                    child: Text (
-                      'Scan',
-                      style: TextStyle (
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 30,
-                      ),
-                    ),
-                  ),
-                ),*/
-              ),
-              _getProLotInfo(),
+                    _getProLotInfo(),
+                ]),
+              )
             ],
-          ),
-        )
+
+
     );
   }
 }
