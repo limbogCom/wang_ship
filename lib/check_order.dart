@@ -14,6 +14,8 @@ import 'package:wang_ship/check_order_detail.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:flutter_mobile_vision/flutter_mobile_vision.dart';
+
 
 class CheckOrderPage extends StatefulWidget {
   @override
@@ -21,6 +23,26 @@ class CheckOrderPage extends StatefulWidget {
 }
 
 class _CheckOrderPageState extends State<CheckOrderPage> {
+
+  int _cameraBarcode = FlutterMobileVision.CAMERA_BACK;
+  int _onlyFormatBarcode = Barcode.ALL_FORMATS;
+  bool _autoFocusBarcode = true;
+  bool _torchBarcode = false;
+  bool _multipleBarcode = false;
+  bool _waitTapBarcode = false;
+  bool _showTextBarcode = false;
+  Size _previewBarcode;
+  List<Barcode> _barcodes = [];
+  //Barcode barcode;
+
+  int _cameraOcr = FlutterMobileVision.CAMERA_BACK;
+  bool _autoFocusOcr = true;
+  bool _torchOcr = false;
+  bool _multipleOcr = false;
+  bool _waitTapOcr = true;
+  bool _showTextOcr = true;
+  Size _previewOcr;
+  List<OcrText> _textsOcr = [];
 
   TextEditingController barcodeProduct = TextEditingController();
   TextEditingController barcodeProductLot = TextEditingController();
@@ -106,7 +128,7 @@ class _CheckOrderPageState extends State<CheckOrderPage> {
 
   }
 
-  scanBarcode() async {
+  /*scanBarcode() async {
     try {
       String barcode = await BarcodeScanner.scan();
       setState((){
@@ -126,9 +148,9 @@ class _CheckOrderPageState extends State<CheckOrderPage> {
     } catch (e) {
       print('Unknown error.');
     }
-  }
+  }*/
 
-  scanBarcodeLot() async {
+  /*scanBarcodeLot() async {
     try {
       String barcode = await BarcodeScanner.scan();
       setState((){
@@ -148,7 +170,7 @@ class _CheckOrderPageState extends State<CheckOrderPage> {
     } catch (e) {
       print('Unknown error.');
     }
-  }
+  }*/
 
   void _showAlertBarcode() async {
     return showDialog<void>(
@@ -311,6 +333,10 @@ class _CheckOrderPageState extends State<CheckOrderPage> {
   @override
   void initState(){
     super.initState();
+    FlutterMobileVision.start().then((previewSizes) => setState(() {
+      _previewBarcode = previewSizes[_cameraBarcode].first;
+      _previewOcr = previewSizes[_cameraOcr].first;
+    }));
   }
 
   onSearch(String text) async{
@@ -345,6 +371,63 @@ class _CheckOrderPageState extends State<CheckOrderPage> {
     setState(() {});
   }
 
+  ///
+  /// Barcode Method
+  ///
+  Future<Null> _scan() async {
+    List<Barcode> barcodes = [];
+    try {
+      barcodes = await FlutterMobileVision.scan(
+        flash: _torchBarcode,
+        autoFocus: _autoFocusBarcode,
+        formats: _onlyFormatBarcode,
+        multiple: _multipleBarcode,
+        waitTap: _waitTapBarcode,
+        showText: _showTextBarcode,
+        preview: _previewBarcode,
+        camera: _cameraBarcode,
+        fps: 15.0,
+      );
+    } on Exception {
+      barcodes.add(Barcode('Failed to get barcode.'));
+    }
+
+    if (!mounted) return;
+
+    setState(() => _barcodes = barcodes);
+    print(_barcodes[0].rawValue);
+    searchBill(_barcodes[0].rawValue.toString());
+  }
+
+  ///
+  /// OCR Method
+  ///
+  Future<Null> _readOCR() async {
+    List<OcrText> texts = [];
+    try {
+      texts = await FlutterMobileVision.read(
+        flash: _torchOcr,
+        autoFocus: _autoFocusOcr,
+        multiple: _multipleOcr,
+        waitTap: _waitTapOcr,
+        showText: _showTextOcr,
+        preview: _previewOcr,
+        camera: _cameraOcr,
+        fps: 2.0,
+      );
+    } on Exception {
+      texts.add(OcrText('Failed to recognize text.'));
+    }
+
+    if (!mounted) return;
+
+    setState(() => _textsOcr = texts);
+    print(_textsOcr[0].value);
+
+    setState(() => barcodeProductLot.text = _textsOcr[0].value.toString());
+    //searchLot(_textsOcr[0].value);
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -363,7 +446,8 @@ class _CheckOrderPageState extends State<CheckOrderPage> {
                                 padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
                                 icon: Icon(Icons.settings_overscan, size: 50, color: Colors.red,),
                                 onPressed: (){
-                                  scanBarcode();
+                                  //scanBarcode();
+                                  _scan();
                                   //Navigator.push(context, MaterialPageRoute(builder: (context) => OrderPage()));
                                 }
                             ),
@@ -446,7 +530,8 @@ class _CheckOrderPageState extends State<CheckOrderPage> {
                                 padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
                                 icon: Icon(Icons.qr_code_scanner, size: 50, color: Colors.black,),
                                 onPressed: (){
-                                  scanBarcodeLot();
+                                  _readOCR();
+                                  //scanBarcodeLot();
                                   //Navigator.push(context, MaterialPageRoute(builder: (context) => OrderPage()));
                                 }
                             ),
