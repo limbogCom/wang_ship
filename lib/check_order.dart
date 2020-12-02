@@ -37,7 +37,7 @@ class _CheckOrderPageState extends State<CheckOrderPage> {
 
   int _cameraOcr = FlutterMobileVision.CAMERA_BACK;
   bool _autoFocusOcr = true;
-  bool _torchOcr = false;
+  bool _torchOcr = true;
   bool _multipleOcr = false;
   bool _waitTapOcr = true;
   bool _showTextOcr = true;
@@ -250,70 +250,74 @@ class _CheckOrderPageState extends State<CheckOrderPage> {
     if(!loading){
       return Text('....');
     }else{
-      return Container(
-        child: ListView.builder(
-          physics: ClampingScrollPhysics(),
-          shrinkWrap:true,
-          itemCount: _proLot.length,
-          itemBuilder: (context, i){
-            final a = _proLot[i];
-            return i == 0 ? ListTile(
-              contentPadding: EdgeInsets.fromLTRB(10, 1, 10, 1),
-              onTap: (){
-                //getOrderBillDetail(a);
-              },
-              leading: Image.network('https://www.wangpharma.com/cms/product/${a.lotProPic}', fit: BoxFit.cover, width: 70, height: 70),
-              title: Text('[${a.lotProBarcode}]', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text('Code : ${a.lotProCode}',),
-                  Text('Name : ${a.lotProName}',),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Lot :  ${a.lotProLot}', style: TextStyle(color: Colors.red),),
-                      Text('รับเข้า : ${a.lotProDate} ', style: TextStyle(color: Colors.black),),
-                    ],
-                  ),
-                ],
-              ),
-              /*trailing: IconButton(
-                  icon: Icon(Icons.local_shipping, size: 40, color: Colors.lightBlue),
-                  onPressed: (){
-                    getOrderBillDetail(a);
-                    //addToOrderFast(productAll[index]);
-                  }
-              ),*/
-            )
-            : ListTile(
-              contentPadding: EdgeInsets.fromLTRB(10, 0, 10, 0),
-              title: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      SizedBox(
-                        width: 60,
+        if(_proLot.isNotEmpty){
+          return Container(
+            child: ListView.builder(
+              physics: ClampingScrollPhysics(),
+              shrinkWrap:true,
+              itemCount: _proLot.length,
+              itemBuilder: (context, i){
+                final a = _proLot[i];
+                return i == 0 ? ListTile(
+                  contentPadding: EdgeInsets.fromLTRB(10, 1, 10, 1),
+                  onTap: (){
+                    //getOrderBillDetail(a);
+                  },
+                  leading: Image.network('https://www.wangpharma.com/cms/product/${a.lotProPic}', fit: BoxFit.cover, width: 70, height: 70),
+                  title: Text('[${a.lotProBarcode}]', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text('Code : ${a.lotProCode}',),
+                      Text('Name : ${a.lotProName}',),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Lot :  ${a.lotProLot}', style: TextStyle(color: Colors.red),),
+                          Text('รับเข้า : ${a.lotProDate} ', style: TextStyle(color: Colors.black),),
+                        ],
                       ),
-                      Text('Lot :  ${a.lotProLot}', style: TextStyle(color: Colors.red, fontSize: 14),),
-                      Text('รับเข้า : ${a.lotProDate} ', style: TextStyle(color: Colors.black, fontSize: 14),),
                     ],
                   ),
-                ],
-              ),
-              /*trailing: IconButton(
-                  icon: Icon(Icons.local_shipping, size: 40, color: Colors.lightBlue),
-                  onPressed: (){
-                    getOrderBillDetail(a);
-                    //addToOrderFast(productAll[index]);
-                  }
-              ),*/
-            );
-          },
-        ),
-      );
+                  /*trailing: IconButton(
+                    icon: Icon(Icons.local_shipping, size: 40, color: Colors.lightBlue),
+                    onPressed: (){
+                      getOrderBillDetail(a);
+                      //addToOrderFast(productAll[index]);
+                    }
+                ),*/
+                )
+                    : ListTile(
+                  contentPadding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                  title: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          SizedBox(
+                            width: 60,
+                          ),
+                          Text('Lot :  ${a.lotProLot}', style: TextStyle(color: Colors.red, fontSize: 14),),
+                          Text('รับเข้า : ${a.lotProDate} ', style: TextStyle(color: Colors.black, fontSize: 14),),
+                        ],
+                      ),
+                    ],
+                  ),
+                  /*trailing: IconButton(
+                    icon: Icon(Icons.local_shipping, size: 40, color: Colors.lightBlue),
+                    onPressed: (){
+                      getOrderBillDetail(a);
+                      //addToOrderFast(productAll[index]);
+                    }
+                ),*/
+                );
+              },
+            ),
+          );
+        }else{
+          return Text('ไม่พบสินค้า');
+        }
     }
   }
 
